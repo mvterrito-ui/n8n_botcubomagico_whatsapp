@@ -1,0 +1,233 @@
+{
+  "name": "codar_aula",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.text.message }}",
+        "options": {
+          "systemMessage": "=#Persona\nVocê é uma agente de IA chamado Cubinho e seu objetivo é auxiliar o usuário a sanar todas as duvidas referentes ao curso de como montar um cubo magico da empresa sem Codar\n\n#Instruções\n- sempre se apresente para começar a conversa\n- Pergunte o nome do usuario para melhor o raport da comunicação\n- Pergunte como pode ajudar (adicione o nome do usuario na mensagem)\n\n# Consultas de tools\n- Sempre que o usuario tiver uma duvida sobre o curso de como montar um cubo magico chame essa tool `conhecimentoTecnico`"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        352,
+        -32
+      ],
+      "id": "b77ed119-4836-4d2a-a369-bc539cdff962",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        352,
+        208
+      ],
+      "id": "a331103a-533b-4d87-a9a5-6c1a3bad46b4",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "U0ZIvyxBCsJMCRnZ",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Sempre que o usuario tiver uma duvida sobre o curso de como montar um cubo magico chame essa tool",
+        "jsCode": "function conhecimentoTecnico(input) {\nconst infos_tecnico = `### 🔧 FAQ Técnico - Métodos e Técnicas de Resolução do Cubo Mágico\n\n#### 🧠 Qual método é ensinado no curso?\n\nEnsinamos o método de Camadas (Layer by Layer), também conhecido como LBL, por ser o mais didático para iniciantes. Ele divide a resolução em três camadas: cruz, meio e topo.\n\n#### 🔄 O que são algoritmos e por que são importantes?\n\nAlgoritmos são sequências de movimentos que resolvem partes do cubo sem bagunçar o resto. Eles são fundamentais para resolver o cubo de forma eficiente e previsível.\n\n#### 📐 Como aprender os algoritmos sem decorar tudo de uma vez?\n\nRecomendamos aprender um por vez, com prática repetida. No curso, associamos cada algoritmo a padrões visuais e mnemônicos que facilitam a memorização.\n\n#### 🟦 Como montar a cruz da primeira camada corretamente?\n\nNo curso, explicamos como posicionar as peças brancas formando uma cruz na base, alinhando as bordas com o centro correto de cada cor — um passo crucial para não errar as próximas fases.\n\n#### 🧩 Como saber quando aplicar cada algoritmo?\n\nCada etapa do curso mostra o padrão visual exato que você deve procurar no cubo para aplicar o algoritmo certo. Com o tempo, seu cérebro reconhece esses padrões automaticamente.\n\n#### 🟨 Como resolver a última camada do cubo?\n\nA última camada é dividida em duas partes:\n\n1. Orientação (deixar tudo da mesma cor no topo)\n\n2. Permutação (trocar as peças de lugar) Cada uma usa algoritmos específicos e visuais claros para saber qual aplicar.\n\n#### ⚙️ Quais são as técnicas alternativas além do método de camadas?\n\nExistem métodos como:\n\n- CFOP (usado por speedcubers)\n\n- Roux\n\n- ZZ\n\n- Método da esquina primeiro (Corners First)\n\nEsses são abordados brevemente no curso, mas o foco principal é o método de camadas.\n\n#### ⏱️ O curso ensina técnicas de speedcubing?\n\nSim! Após dominar a resolução básica, ensinamos formas de otimizar movimentos, introdução ao F2L, e práticas de melhora de tempo para quem deseja avançar no speedcubing.\n\n#### 📈 Como posso evoluir depois de aprender o básico?\n\nVocê pode:\n\n- Aprender o F2L (First Two Layers)\n\n- Estudar OLL e PLL\n\n- Praticar com cronômetros e aplicativos\n\n- Participar de comunidades online para trocar dicas`;\n\n  return infos_tecnico;\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        656,
+        224
+      ],
+      "id": "b55a7369-5f55-4aac-aac1-432770b8e26d",
+      "name": "conhecimentoTecnico"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "conexao_n8n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "b2d8dabe-1119-4a64-b519-c53605f31194",
+      "name": "Webhook",
+      "webhookId": "ed63737a-9315-49c6-b63c-1ccb9b9db078"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3EBD6C45EF50D1F1EE448EE125833D5F/token/51145DF34B46E71216211C17/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F309a7e62ce2d404a97b602cbbba04442S"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $('Webhook').item.json.body.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        0
+      ],
+      "id": "938cb7c8-9301-4e91-a3b5-30d04948ca03",
+      "name": "enviar_resposta"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "mvterrito.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:111.0) Gecko/20100101 Firefox/111.0",
+            "content-length": "834",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "129.148.47.193",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "BR",
+            "cf-ray": "9af6431f4613f90f-GRU",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json; charset=utf-8",
+            "origin": "https://api.z-api.io",
+            "server": "Z-API",
+            "x-forwarded-for": "129.148.47.193, 104.22.10.179",
+            "x-forwarded-host": "mvterrito.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-68-6dfc679bd7-2hhbw",
+            "x-is-trusted": "yes",
+            "x-real-ip": "129.148.47.193",
+            "z-api-token": "51145DF34B46E71216211C17"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "isStatusReply": false,
+            "chatLid": "61590535676136@lid",
+            "connectedPhone": "554391013792",
+            "waitingMessage": false,
+            "isEdit": false,
+            "isGroup": false,
+            "isNewsletter": false,
+            "instanceId": "3EBD6C45EF50D1F1EE448EE125833D5F",
+            "messageId": "3A3744EFA6F22A1458BF",
+            "phone": "393514621356",
+            "fromMe": false,
+            "momment": 1765972847000,
+            "status": "RECEIVED",
+            "chatName": "Vinicio Territo 🍺 🇮🇹",
+            "senderPhoto": null,
+            "senderName": "Territo",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518656010_2150560965751647_6368951536405973337_n.jpg?ccb=11-4&oh=01_Q5Aa3QGE8w2TQw84nTur5j4-9IaXf62jc-bubDahn8r_YvW4uQ&oe=694FA816&_nc_sid=5e03e0&_nc_cat=111",
+            "broadcast": false,
+            "participantLid": null,
+            "forwarded": false,
+            "type": "ReceivedCallback",
+            "fromApi": false,
+            "text": {
+              "message": "Oi"
+            },
+            "_traceContext": {
+              "traceId": "d87f921d79c7687b032007459127c9d7",
+              "spanId": "4a9a88d19c51bdb4"
+            }
+          },
+          "webhookUrl": "https://mvterrito.app.n8n.cloud/webhook/conexao_n8n",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "conhecimentoTecnico": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "enviar_resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "623a1901-9d8f-47bb-a9b4-b26a081a6c89",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fbde9e29b08ff6214030ecb766f80ebc976d1689691b7bd527d1c44a681bb38f"
+  },
+  "id": "MCweRDqkJiT77nHI",
+  "tags": []
+}
